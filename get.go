@@ -21,6 +21,7 @@ func Get(m map[string]any, key []string) (any, bool) {
 
 	if len(key) == 1 {
 		v, ok := m[key[0]]
+
 		return v, ok
 	}
 

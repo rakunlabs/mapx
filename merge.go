@@ -1,5 +1,7 @@
 package mapx
 
+import "maps"
+
 func MergeAny(value any, to any) any {
 	switch value.(type) {
 	case map[string]any:
@@ -15,6 +17,13 @@ func MergeAny(value any, to any) any {
 }
 
 func Merge(value map[string]any, to map[string]any) map[string]any {
+	if to == nil {
+		result := make(map[string]any, len(value))
+		maps.Copy(result, value)
+
+		return result
+	}
+
 	for k := range value {
 		if _, ok := to[k]; ok {
 			// check if to[k] is map

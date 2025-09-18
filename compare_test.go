@@ -7,8 +7,9 @@ import (
 
 func TestIsMapSubset(t *testing.T) {
 	type args struct {
-		m   map[string]any
-		sub map[string]any
+		m             map[string]any
+		sub           map[string]any
+		OptionCompare []OptionCompare
 	}
 	tests := []struct {
 		name string
@@ -23,8 +24,9 @@ func TestIsMapSubset(t *testing.T) {
 					"xyz": 2,
 				},
 				sub: map[string]any{
-					"abc": 1,
+					"aBc": "1",
 				},
+				OptionCompare: []OptionCompare{WithCaseInsensitive(true)},
 			},
 			want: true,
 		},
@@ -49,7 +51,28 @@ func TestIsMapSubset(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "mix type",
+			name: "mix type string and number",
+			args: args{
+				m: map[string]any{
+					"abc": 1,
+					"xyz": 2,
+					"def": map[string]any{
+						"abc": 1,
+						"xyz": int64(2),
+					},
+				},
+				sub: map[string]any{
+					"abc": 1,
+					"def": map[string]any{
+						"abc": json.Number("1"),
+						"xyz": float32(2),
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "mix type false",
 			args: args{
 				m: map[string]any{
 					"abc": 1,
@@ -65,8 +88,9 @@ func TestIsMapSubset(t *testing.T) {
 						"abc": json.Number("1"),
 					},
 				},
+				OptionCompare: []OptionCompare{WithWeakType(false)},
 			},
-			want: true,
+			want: false,
 		},
 		{
 			name: "mix type",
@@ -165,7 +189,7 @@ func TestIsMapSubset(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsMapSubset(tt.args.m, tt.args.sub); (got == nil) != tt.want {
+			if got := IsMapSubset(tt.args.m, tt.args.sub, tt.args.OptionCompare...); (got == nil) != tt.want {
 				t.Errorf("IsMapSubset() = %v, want %v", got, tt.want)
 			}
 		})
